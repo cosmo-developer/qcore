@@ -38,6 +38,7 @@ print(something())
         <h2>{{f}}<br>{{d}}</h2>
         <table border="3px">
         <q.
+          Include(`example.q`);
           Loop(data):[
             Print("<tr>",Line,Space(8));
             Loop(value):[
@@ -49,8 +50,8 @@ print(something())
           var.Add("USA");
           Print(var);
           LANGUAGE.version=2;
-          Print("Something");
-          LANGUAGE.lbs.name="Something";
+          Print("some");
+          LANGUAGE.lbs.name="something";
           Print(LANGUAGE.version,LANGUAGE.lbs.name.ES);
           Print("murga".EN);
           Print(Line,LANGUAGE);
@@ -64,13 +65,13 @@ print(something())
           a.Delete(1);
           Print(Line,a," With:",a.Length,Line);
           d="Delegete";
-          d.Add("Something")at(3);
+          d.Add("uri")at(1);
           Print(Line,d,Line);
           arra=(5,6,7,8,8,9);
           arra.Add(44)at(3);
           Print(arra,Line);
           Print(LANGUAGE,Line);
-          LANGUAGE.lbs.name.Add("horror")at(1);
+          LANGUAGE.lbs.name.Add("horror")at(2);
           Print(LANGUAGE,Line);
           LANGUAGE.array=(5,8,7,8,8);
           LANGUAGE.array.Add(888)at(2);

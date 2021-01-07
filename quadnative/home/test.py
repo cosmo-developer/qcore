@@ -1,6 +1,10 @@
 import re
+
+
 def segments(file):
-    text =open(file).read().replace('days','*1').replace('minutes','/(24*60)').replace('seconds','/(24*60*60)')
+    text = open(file).read().replace('days', '*1').replace('minutes', '/(24*60)').replace('seconds',
+                                                                                          '/(24*60*60)').replace(
+        'hours', '/24')
     rules = [
         ('QUAD', r'D#(?:(?!#D)(.|\n))*?#D')
         , ('SM', r'(.|\n|)')
@@ -18,20 +22,21 @@ def segments(file):
         if token_type == 'QUAD':
             for i in t:
                 if i == '\n':
-                    col=1
-                    lin_start+=1
+                    col = 1
+                    lin_start += 1
                 else:
-                    col+=1
-            segment.append(('TEXT', t,0,0))
+                    col += 1
+            segment.append(('TEXT', t, 0, 0))
             t = ""
-            segment.append(('TOPARSE', token_lexeme.replace('#D', '').replace('D#', ''),lin_start,col))
+            segment.append(('TOPARSE', token_lexeme.replace('#D', '').replace('D#', ''), lin_start, col))
             for i in token_lexeme:
                 if i == '\n':
-                    lin_start+=1
+                    lin_start += 1
         else:
             t += token_lexeme
-    segment.append(('TEXT', t,0,0))
+    segment.append(('TEXT', t, 0, 0))
     return segment
+
 
 if __name__ == '__main__':
     for i in segments('test.q'):

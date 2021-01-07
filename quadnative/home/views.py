@@ -320,6 +320,7 @@ class Parser:
                     self.eat('RPAREN')
                     at = None
                     if self.c_t.type == 'AT':
+                        self.advance()
                         self.eat('LPAREN')
                         at = self.expr()
                         self.eat('RPAREN')
@@ -384,7 +385,8 @@ class Parser:
     def scan_loop(self, stmts=[]):
         self.advance()
         self.eat('LPAREN')
-        vid = self.eat('VID')
+        # vid = self.eat('VID')
+        vid=self.expr()
         self.eat('RPAREN')
         timeexp = None
         conditionexp = None
@@ -554,6 +556,7 @@ class Parser:
                             self.eat('RPAREN')
                             at = None
                             if self.c_t.type == 'AT':
+                                self.advance()
                                 self.eat('LPAREN')
                                 at = self.expr()
                                 self.eat('RPAREN')
@@ -877,6 +880,12 @@ class Parser:
                     elif self.c_t.type == 'LANGUAGES':
                         chain.append(LangAccessExp(None, self.c_t))
                         self.advance()
+                    elif self.c_t.type == 'NUM':
+                        self.advance()
+                        self.eat('LPAREN')
+                        tmp = self.expr()
+                        self.eat('RPAREN')
+                        chain.append(NumExpression(tmp))
                 if self.c_t.type == 'LPAREN':
                     self.advance()
                     e = self.expr()
@@ -1570,15 +1579,14 @@ class Interpreter:
    #this visit evaluate LoopStatement
     def visit_LoopStatement(self, node, symbol_table):
         stm = SymbolTable('LOOP', symbol_table)
-        var = node.var.value
+        var = self.visit(node.var,symbol_table)
         if node.condition is not None and node.times is not None:
-            value = symbol_table.get(var)
+            value = self.visit(node.var,symbol_table)
             if type(value).__name__ == 'Value':
                 i = 0
                 while i < self.visit(node.times, stm).value and self.visit(node.condition, stm).value == True:
                     i += 1
                     for j in node.body.statements:
-                        stm.set('key', Value(var))
                         stm.set('value', symbol_table.get(var))
                         val = self.visit(j, stm)
                         if val:
@@ -1595,7 +1603,7 @@ class Interpreter:
                     for j in node.body.statements:
                         stm.set('key', Value(key))
                         stm.set('value', value.data[key])
-                        keys = list(symbol_table.get(var).data.keys)
+                        keys = list(self.visit(var,symbol_table).data.keys)
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1875,7 +1883,7 @@ class Interpreter:
    #this visit evaluate LangAccessExp
     def visit_LangAccessExp(self, node, symbol_table):
         l = Lexer()
-        f = l.tokenize('lang.' + node.lang.value + '.q', open('lang.' + node.lang.value + '.q').read(), 1, [])
+        f = l.tokenize(os.getcwd()+'/text/lang.' + node.lang.value + '.q', open(os.getcwd()+'/text/lang.' + node.lang.value + '.q').read(), 1, [])
         i = 0
         dicc = {}
         for i in range(0, len(f)):
@@ -1954,25 +1962,25 @@ class Interpreter:
             val = symbol_table.get(node.chain[0].value)
             if type(val).__name__ == 'ArrayList':
                 if node.at:
-                    val.items.insert(self.visit(node.at, symbol_table).value, self.visit(node.exp, symbol_table))
+                    val.items.insert(self.visit(node.at, symbol_table).value-1, self.visit(node.exp, symbol_table))
                 else:
                     val.items.append(self.visit(node.exp, symbol_table))
             elif type(val).__name__ == 'Value':
                 if type(val.value).__name__ == 'str':
                     if node.at:
-                        i = self.visit(node.at, symbol_table).value
+                        i = self.visit(node.at, symbol_table).value-1
                         if i == 0:
                             val.value = self.visit(node.exp, symbol_table).value + val.value
                         elif i == len(val.value):
                             val.value += self.visit(node.exp, symbol_table).value
                         else:
-                            first = val.value[:self.visit(node.at).value]
-                            second = val.value[self.visit(node.at).value:]
-                            val.value = first + self.visit(node.exp).value + second
+                            first = val.value[:self.visit(node.at,symbol_table).value-1]
+                            second = val.value[self.visit(node.at,symbol_table).value-1:]
+                            val.value = first + self.visit(node.exp,symbol_table).value + second
                     else:
                         val.value += self.visit(node.exp, symbol_table).value
                 elif type(val).__name__ == 'Dictionary':
-                    val.data.update({self.visit(node.at).value: self.visit(node.exp, symbol_table)})
+                    val.data.update({self.visit(node.at,symbol_table).value: self.visit(node.exp, symbol_table)})
         else:
             stackval = symbol_table.get(node.chain[0].value)
             del node.chain[0]
@@ -1984,34 +1992,35 @@ class Interpreter:
             if type(stackval).__name__ == 'Value':
                 if type(stackval.value).__name__ == 'str':
                     if node.at:
-                        i = self.visit(node.at, symbol_table).value
+                        i = self.visit(node.at, symbol_table).value-1
                         if i == 0:
                             stackval.value = self.visit(node.exp, symbol_table).value + stackval.value
                         elif i == len(stackval.value):
                             stackval.value += self.visit(node.exp, symbol_table).value
                         else:
-                            first = stackval.value[:self.visit(node.at).value]
-                            second = stackval.value[self.visit(node.at).value:]
-                            stackval.value = first + self.visit(node.exp).value + second
+                            first = stackval.value[:self.visit(node.at,symbol_table).value-1]
+                            second = stackval.value[self.visit(node.at,symbol_table).value-1:]
+                            stackval.value = first + self.visit(node.exp,symbol_table).value + second
                     else:
                         stackval.value += self.visit(node.exp, symbol_table).value
             elif type(stackval).__name__ == 'Dictionary':
                 val = stackval.data[last.value]
                 if type(val).__name__ == 'ArrayList':
                     if node.at:
-                        val.items.insert(self.visit(node.at, symbol_table).value, self.visit(node.exp, symbol_table))
+                        val.items.insert(self.visit(node.at, symbol_table).value-1, self.visit(node.exp, symbol_table))
                     else:
                         val.items.append(self.visit(node.exp, symbol_table))
                 elif type(val).__name__ == 'Value':
                     if node.at:
-                        i = self.visit(node.at, symbol_table).value
+                        i = self.visit(node.at, symbol_table).value-1
+
                         if i == 0:
                             val.value = self.visit(node.exp, symbol_table).value + val.value
                         elif i == len(val.value):
                             val.value += self.visit(node.exp, symbol_table).value
                         else:
-                            first = val.value[:self.visit(node.at).value]
-                            second = val.value[self.visit(node.at).value:]
+                            first = val.value[:self.visit(node.at).value-1]
+                            second = val.value[self.visit(node.at).value-1:]
                             val.value = first + self.visit(node.exp).value + second
                     else:
                         val.value = val.value + self.visit(node.exp, symbol_table).value
@@ -2257,6 +2266,7 @@ def index(request, path):
     global_symbol_table = SymbolTable('module')
     global_symbol_table.set('true', Value(1))
     global_symbol_table.set('false', Value(0))
+    global_symbol_table.set('start',Value(1))
     segments = test.segments(path)
     print_text = ""
     glob = Global()
