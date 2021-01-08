@@ -2296,4 +2296,5 @@ def index(request, path):
             i.visit(stmt, g.global_symbol_table)
             i.stack.clear()
             print_text += i.print_data
+            data.clear()
     return HttpResponse(print_text)

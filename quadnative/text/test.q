@@ -33,23 +33,16 @@
                     If f.1 == 101:[Return 1;]
                   ]
                   Print("<a href='debug.q'>Goto Debug.q</a>");
-Python[[
-print("something");
-def something():
-    return "myname"
 
-print(something())
-]]
                 .q>
                 </ul>
             </div>
 
         </div>
         {{BOOTSTRAP.js_bundle_min}}
-        <h2>{{f}}<br>{{d}}</h2>
+
         <table border="3px">
         <q.
-          Include(`example.q`);
           Loop(data):[
             Print("<tr>",Line,Space(8));
             Loop(value):[
@@ -57,40 +50,6 @@ print(something())
             ]
             Print("</tr>",Line,Space(8));
           ]
-          var="str";
-          var.Add("USA");
-          Print(var);
-          LANGUAGE.version=2;
-          Print("some");
-          LANGUAGE.lbs.name="something";
-          Print(LANGUAGE.version,LANGUAGE.lbs.name.ES);
-          Print("murga".EN);
-          Print(Line,LANGUAGE);
-          Print(Line,ARRAYDATA,Line);
-          Print(ARRAYDATA.Length);
-          Print(ARRAYDATA.array.name.Length);
-          Print(ARRAYDATA);
-          ARRAYDATA.array.Delete("name");
-          Print(Line,ARRAYDATA.array);
-          a=(5,4,8,7,5,4,7,8);
-          a.Delete(1);
-          Print(Line,a," With:",a.Length,Line);
-          d="Delegete";
-          d.Add("uri")at(1);
-          Print(Line,d,Line);
-          arra=(5,6,7,8,8,9);
-          arra.Add(44)at(3);
-          Print(arra,Line);
-          Print(LANGUAGE,Line);
-          LANGUAGE.lbs.name.Add("horror")at(2);
-          Print(LANGUAGE,Line);
-          LANGUAGE.array=(5,8,7,8,8);
-          LANGUAGE.array.Add(888)at(2);
-          Print(LANGUAGE,Line);
-          MyFunc(some,aux):[
-             Return some&aux;
-          ];
-          Print(MyFunc(LANGUAGE.lbs.name,"Don"));
         .q>
         </table>
     </body>
