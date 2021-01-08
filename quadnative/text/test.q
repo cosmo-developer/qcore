@@ -27,10 +27,10 @@
                     Print("<h1>",key,":",value,"<h2>");
                   ]
                   b=0;
-                  Loop(b)Condition(true):[
+                  Loop(f.1)Condition(true):[
                     Print("<h1>",value,"<h1>");
-                    b=b+1;
-                    If b == 101:[Return 1;]
+                    f.1=(f.1)+1;
+                    If f.1 == 101:[Return 1;]
                   ]
                   Print("<a href='debug.q'>Goto Debug.q</a>");
 Python[[

@@ -1428,7 +1428,7 @@ class Interpreter:
             name = copy.copy(node.name)
             stackval = symbol_table.get(name[0].value)
             del name[0]
-            last = name[len(name) - 1].value
+            last = name[len(name) - 1].value if type(name[len(name)-1]).__name__ != 'int' else name[len(name)-1]
             del name[len(name) - 1]
             for i in name:
                 if type(stackval).__name__ == 'Dictionary':
