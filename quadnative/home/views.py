@@ -1587,7 +1587,8 @@ class Interpreter:
                 while i < self.visit(node.times, stm).value and self.visit(node.condition, stm).value == True:
                     i += 1
                     for j in node.body.statements:
-                        stm.set('value', symbol_table.get(var))
+                        value=self.visit(node.var,symbol_table)
+                        stm.set('value', self.visit(node.var,symbol_table))
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1601,9 +1602,10 @@ class Interpreter:
                     key = keys[k]
                     k += 1
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        keys = list(self.visit(node.var,symbol_table).data.keys())
                         stm.set('key', Value(key))
                         stm.set('value', value.data[key])
-                        keys = list(self.visit(var,symbol_table).data.keys)
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1614,20 +1616,19 @@ class Interpreter:
                     i += 1
                     if k == len(value.items): k = 0
                     k += 1
-                    stm.set('key', Value('#'))
                     for j in node.body.statements:
+                        value = self.visit(node.var,symbol_table)
+                        stm.set('key',Value(k))
                         stm.set('value', value.items[k - 1])
-                        value = symbol_table.get(var)
                         val = self.visit(j, stm)
                         if val:
                             return val
         elif node.condition is not None:
-            value = symbol_table.get(var)
+            value = self.visit(node.var,symbol_table)
             if type(value).__name__ == 'Value':
                 while self.visit(node.condition, stm).value == True:
                     for j in node.body.statements:
-                        value = symbol_table.get(var)
-                        stm.set('key', Value(var))
+                        value = self.visit(node.var,symbol_table)
                         stm.set('value', value)
                         val = self.visit(j, stm)
                         if val:
@@ -1639,9 +1640,11 @@ class Interpreter:
                     if k == len(keys): k = 0
                     key = keys[k]
                     k += 1
-                    stm.set('key', Value(key))
-                    stm.set('value', value.data[key])
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        keys = list(self.visit(node.var, symbol_table).data.keys())
+                        stm.set('key', Value(key))
+                        stm.set('value', value.data[key])
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1650,21 +1653,22 @@ class Interpreter:
                 while self.visit(node.condition, stm).value == True:
                     if k == len(value.items): k = 0
                     k += 1
-                    stm.set('key', Value('#'))
-                    stm.set('value', value.items[k - 1])
                     for j in node.body.statements:
+                        value=self.visit(node.var,symbol_table)
+                        stm.set('key',Value(k))
+                        stm.set('value', value.items[k - 1])
                         val = self.visit(j, stm)
                         if val:
                             return val
         elif node.times is not None:
-            value = symbol_table.get(var)
+            value = self.visit(node.var,symbol_table)
             if type(value).__name__ == 'Value':
-                stm.set('key', Value(var))
-                stm.set('value', value)
                 i = 0
                 while i < self.visit(node.times, stm).value:
                     i += 1
                     for j in node.body.statements:
+                        value=self.visit(node.var,symbol_table)
+                        stm.set('value', value)
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1677,9 +1681,11 @@ class Interpreter:
                     if k == len(keys): k = 0
                     key = keys[k]
                     k += 1
-                    stm.set('key', Value(key))
-                    stm.set('value', value.data[key])
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        keys = list(value.data.keys())
+                        stm.set('key', Value(key))
+                        stm.set('value', value.data[key])
                         val = self.visit(j, stm)
                         if val:
                             return val
@@ -1690,34 +1696,37 @@ class Interpreter:
                     i += 1
                     if k == len(value.items): k = 0
                     k += 1
-                    stm.set('key', Value('#'))
-                    stm.set('value', value.items[k - 1])
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        stm.set('key', Value(k))
+                        stm.set('value', value.items[k - 1])
                         val = self.visit(j, stm)
                         if val:
                             return val
         elif node.condition is None and node.times is None:
             value = symbol_table.get(var)
             if type(value).__name__ == 'Value':
-                stm.set('key', Value(var))
-                stm.set('value', value)
                 for i in node.body.statements:
+                    value=self.visit(node.var,symbol_table)
+                    stm.set('value', value)
                     val = self.visit(i, stm)
                     if val:
                         return val
             elif type(value).__name__ == 'Dictionary':
                 for i in list(value.data.keys()):
-                    stm.set('key', Value(i))
-                    stm.set('value', value.data[i])
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        stm.set('key', Value(i))
+                        stm.set('value', value.data[i])
                         val = self.visit(j, stm)
                         if val:
                             return val
             elif type(value).__name__ == 'ArrayList':
                 for i in value.items:
-                    stm.set('key', Value(value.items.index(i) + 1))
-                    stm.set('value', i)
                     for j in node.body.statements:
+                        value = self.visit(node.var, symbol_table)
+                        stm.set('key', Value(value.items.index(i) + 1))
+                        stm.set('value', i)
                         val = self.visit(j, stm)
                         if val:
                             return val
